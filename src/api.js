@@ -26,8 +26,7 @@ export async function loginUser(username, password) {
   const res = await fetch('https://dummyjson.com/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-    credentials: 'include',
+    body: JSON.stringify({ username, password })
   });
   if (!res.ok) throw new Error('Invalid credentials');
   const data = await res.json();
@@ -41,8 +40,7 @@ export async function getCurrentUser() {
   if (!token) throw new Error('No auth token');
   const res = await fetch('https://dummyjson.com/auth/me', {
     method: 'GET',
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: 'include',
+    headers: { Authorization: `Bearer ${token}` }
   });
   if (!res.ok) throw new Error('Failed to fetch user');
   return res.json();
@@ -53,8 +51,7 @@ export async function refreshAuthSession() {
   const res = await fetch('https://dummyjson.com/auth/refresh', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-    credentials: 'include',
+    body: JSON.stringify({ refreshToken })
   });
   if (!res.ok) throw new Error('Failed to refresh session');
   const data = await res.json();
