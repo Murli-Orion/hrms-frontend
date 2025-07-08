@@ -5,7 +5,7 @@ import { fetchFromApi } from '../../api';
 const TABS = ['My Performance', 'Team Performance'];
 
 export default function PerformancePage() {
-  const { isHR, isAdmin, user } = useAuth();
+  const { isHR, isAdmin } = useAuth();
   const [tab, setTab] = useState(TABS[0]);
   const [theme, setTheme] = useState('light');
   const [summary, setSummary] = useState({ kras: 0, goals: 0, feedback: 0, appraisals: 0 });
@@ -26,7 +26,7 @@ export default function PerformancePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleThemeToggle = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+  // const handleThemeToggle = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
 
   if (loading) return <div>Loading performance data...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
@@ -35,7 +35,7 @@ export default function PerformancePage() {
     <div className={`performance-dashboard theme-${theme}`}>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Performance</h2>
-        <button className="btn btn-outline-secondary" onClick={handleThemeToggle}>
+        <button className="btn btn-outline-secondary" onClick={() => setTheme(t => (t === 'light' ? 'dark' : 'light'))}>
           Switch to {theme === 'light' ? 'Dark' : 'Light'} Theme
         </button>
       </div>

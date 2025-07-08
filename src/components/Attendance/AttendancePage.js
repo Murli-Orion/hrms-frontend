@@ -14,16 +14,6 @@ const statusColor = {
   'Half Day': 'info',
 };
 
-
-const employees = [
-  'John Doe', 'Jane Smith', 'Carlos Ruiz', 'Emily Zhang', 'Michael Johnson', 'Sarah Wilson', 
-  'David Brown', 'Lisa Anderson', 'Robert Taylor', 'Amanda Garcia', 'James Martinez', 
-  'Jennifer Lee', 'Christopher White', 'Michelle Rodriguez', 'Daniel Thompson', 'Nicole Clark',
-  'Kevin Lewis', 'Stephanie Hall', 'Andrew Young', 'Rachel King', 'Thomas Wright', 
-  'Jessica Lopez', 'Ryan Hill', 'Ashley Scott', 'Brandon Green', 'Megan Adams', 
-  'Justin Baker', 'Lauren Nelson', 'Tyler Carter', 'Hannah Mitchell'
-];
-
 const customStyles = {
   headRow: {
     style: {
@@ -96,11 +86,6 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
-
-function getTodayAttendance(attendanceList, user) {
-  // For demo, just pick the first record for the logged-in user
-  return attendanceList.find(a => a.employee === user.name && a.date === new Date().toISOString().split('T')[0]);
-}
 
 export default function AttendancePage() {
   const { user, isHR, isAdmin } = useAuth();

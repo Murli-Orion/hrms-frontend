@@ -1,8 +1,8 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import OrgChart from '../components/Employee/OrgChart';
-import DepartmentDisplay from '../components/Employee/DepartmentDisplay';
+// import OrgChart from '../components/Employee/OrgChart';
+// import DepartmentDisplay from '../components/Employee/DepartmentDisplay';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -80,7 +80,7 @@ export default function Dashboard() {
 
       {/* Org Chart Widget */}
       <div className="col-12 mb-4">
-        <OrgChart />
+        {/* <OrgChart /> */}
       </div>
 
       {/* Attendance Trend Chart */}
@@ -128,7 +128,7 @@ export default function Dashboard() {
             ))}
           </div>
         </div>
-        <DepartmentDisplay />
+        {/* <DepartmentDisplay /> */}
       </div>
     </div>
   );
