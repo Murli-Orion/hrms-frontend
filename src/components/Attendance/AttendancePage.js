@@ -14,6 +14,7 @@ const statusColor = {
   'Half Day': 'info',
 };
 
+
 const employees = [
   'John Doe', 'Jane Smith', 'Carlos Ruiz', 'Emily Zhang', 'Michael Johnson', 'Sarah Wilson', 
   'David Brown', 'Lisa Anderson', 'Robert Taylor', 'Amanda Garcia', 'James Martinez', 
