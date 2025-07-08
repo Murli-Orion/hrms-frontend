@@ -12,42 +12,61 @@ import ReportsPage from './components/Reports/ReportsPage';
 import NotificationsPage from './components/Notifications/NotificationsPage';
 import SelfServicePage from './components/SelfService/SelfServicePage';
 import Dashboard from './pages/Dashboard';
-import { AuthProvider, useAuth } from './components/AuthContext';
+import OrgStructurePage from './pages/OrgStructurePage';
+import DocumentsLettersPage from './pages/DocumentsLettersPage';
+import OnboardingPage from './pages/OnboardingPage';
+import EmployeeExitPage from './pages/EmployeeExitPage';
+import AccessRolesPage from './pages/AccessRolesPage';
 import LoginPage from './pages/LoginPage';
-import ExpenseClaimsPage from './pages/ExpenseClaimsPage';
-import AccountsPage from './pages/AccountsPage';
 import SettingsPage from './pages/SettingsPage';
-import DocumentsPage from './pages/DocumentsPage';
-import SupportPage from './pages/SupportPage';
 import ProfilePage from './pages/ProfilePage';
+import { useAuth } from './components/AuthContext';
 
 const menuTree = [
   {
-    label: 'Core',
-    icon: 'fa-th-large',
+    label: 'HR',
+    icon: 'fa-users',
     children: [
-      { path: '/', name: 'Dashboard', icon: 'fa-home', roles: ['admin','hr','employee'] },
-      { path: '/employee', name: 'Employee Management', icon: 'fa-id-badge', roles: ['admin','hr'] },
-      { path: '/attendance', name: 'Attendance', icon: 'fa-calendar-check', roles: ['admin','hr','employee'] },
-      { path: '/leave', name: 'Leave Management', icon: 'fa-plane-departure', roles: ['admin','hr','employee'] },
-      { path: '/payroll', name: 'Payroll', icon: 'fa-money-check-alt', roles: ['admin','hr','employee'] },
-      { path: '/expense-claims', name: 'Expense Claims', icon: 'fa-file-invoice-dollar', roles: ['admin','hr','employee'] },
-      { path: '/accounts', name: 'Accounts', icon: 'fa-university', roles: ['admin','hr'] },
-      { path: '/reports', name: 'Reports', icon: 'fa-chart-bar', roles: ['admin','hr'] },
-      { path: '/settings', name: 'Settings', icon: 'fa-cogs', roles: ['admin'] },
-      { path: '/notifications', name: 'Notifications', icon: 'fa-bell', roles: ['admin','hr','employee'] },
-      { path: '/documents', name: 'Documents', icon: 'fa-folder-open', roles: ['admin','hr','employee'] },
-      { path: '/support', name: 'Support', icon: 'fa-headset', roles: ['admin','hr','employee'] },
-      { path: '/profile', name: 'Profile', icon: 'fa-user', roles: ['admin','hr','employee'] },
+      { path: '/employee', name: 'Employee Management', icon: 'fa-id-badge' },
+      { path: '/attendance', name: 'Attendance', icon: 'fa-calendar-check' },
+      { path: '/timesheets', name: 'Timesheets', icon: 'fa-clock' },
+      { path: '/performance', name: 'Performance', icon: 'fa-chart-line' },
+      { path: '/org-structure', name: 'Org Structure', icon: 'fa-sitemap' },
+      { path: '/onboarding', name: 'Onboarding', icon: 'fa-user-plus' },
+      { path: '/employee-exit', name: 'Employee Exit', icon: 'fa-user-minus' },
+      { path: '/access-roles', name: 'Access Roles', icon: 'fa-user-shield' },
+    ],
+  },
+  {
+    label: 'Compensation',
+    icon: 'fa-money-bill-wave',
+    children: [
+      { path: '/payroll', name: 'Payroll', icon: 'fa-file-invoice-dollar' },
+      { path: '/leave', name: 'Leave Management', icon: 'fa-calendar-minus' },
+    ],
+  },
+  {
+    label: 'Analytics',
+    icon: 'fa-chart-pie',
+    children: [
+      { path: '/reports', name: 'Reports', icon: 'fa-chart-bar' },
+    ],
+  },
+  {
+    label: 'Utilities',
+    icon: 'fa-toolbox',
+    children: [
+      { path: '/notifications', name: 'Notifications', icon: 'fa-bell' },
+      { path: '/self-service', name: 'Self-service', icon: 'fa-user-cog' },
+      { path: '/documents-letters', name: 'Documents & Letters', icon: 'fa-file-alt' },
     ],
   },
 ];
 
 function BootstrapSidebar({ collapsed, setCollapsed }) {
-  const { user } = useAuth();
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const [openGroups, setOpenGroups] = useState({});
-  if (!user) return null;
   const handleGroupToggle = (label) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
   };
@@ -59,16 +78,55 @@ function BootstrapSidebar({ collapsed, setCollapsed }) {
       </div>
       <div className="sidebar-scrollbar">
         <nav className="flex-grow-1 nav flex-column">
-          {menuTree[0].children.filter(mod => mod.roles.includes(user.role)).map((mod) => (
-            <Link
-              key={mod.path}
-              to={mod.path}
-              className={`sidebar-menu-item${location.pathname === mod.path ? ' sidebar-menu-active' : ''}`}
-              title={collapsed ? mod.name : undefined}
-            >
-              <i className={`fas ${mod.icon}`}></i>
-              {!collapsed && mod.name}
+          <Link to="/" className={`sidebar-menu-item${location.pathname === '/' ? ' sidebar-menu-active' : ''}`}> 
+            <i className="fas fa-home"></i>
+            {!collapsed && <span>Dashboard</span>}
+          </Link>
+          <Link to="/profile" className={`sidebar-menu-item${location.pathname === '/profile' ? ' sidebar-menu-active' : ''}`}> 
+            <i className="fas fa-user"></i>
+            {!collapsed && <span>Profile</span>}
+          </Link>
+          {isAdmin && (
+            <Link to="/settings" className={`sidebar-menu-item${location.pathname === '/settings' ? ' sidebar-menu-active' : ''}`}> 
+              <i className="fas fa-cog"></i>
+              {!collapsed && <span>Settings</span>}
             </Link>
+          )}
+          <div style={{ height: 8 }} />
+          {menuTree.map((group, idx) => (
+            <div key={group.label}>
+              {!collapsed && <div className="sidebar-section">{group.label}</div>}
+              <button
+                className={`sidebar-menu-item${openGroups[group.label] ? ' fw-bold' : ''}`}
+                style={{ color: '#e5eaf5', background: 'none', border: 'none' }}
+                onClick={() => handleGroupToggle(group.label)}
+                aria-expanded={!!openGroups[group.label]}
+                aria-controls={`collapse-${group.label}`}
+                tabIndex={0}
+              >
+                <i className={`fas ${group.icon}`}></i>
+                {!collapsed && <span>{group.label}</span>}
+                {!collapsed && (
+                  <i className={`sidebar-menu-arrow fas fa-chevron-${openGroups[group.label] ? 'down' : 'right'}`}></i>
+                )}
+              </button>
+              <div className={`sidebar-submenu${!(openGroups[group.label] && !collapsed) ? ' collapse' : ''}`} id={`collapse-${group.label}`}
+                style={{ display: collapsed ? 'none' : undefined }}>
+                {group.children.map((mod) => (
+                  <Link
+                    key={mod.path}
+                    to={mod.path}
+                    className={`sidebar-menu-item${location.pathname === mod.path ? ' sidebar-menu-active' : ''}`}
+                    style={{ paddingLeft: 36 }}
+                    title={collapsed ? mod.name : undefined}
+                  >
+                    <span className="sidebar-bullet"></span>
+                    <i className={`fas ${mod.icon}`}></i>
+                    {!collapsed && mod.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
       </div>
@@ -81,12 +139,10 @@ function BootstrapSidebar({ collapsed, setCollapsed }) {
   );
 }
 
-function TopHeader() {
-  const { user, logout } = useAuth();
+function TopHeader({ user, onLogout, onChangeUser }) {
   const [dropdown, setDropdown] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
-  if (!user) return null;
   const notifications = [
     { id: 1, text: 'Payroll processed for May', time: '5m ago', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
     { id: 2, text: 'New leave request from Jane', time: '20m ago', avatar: 'https://randomuser.me/api/portraits/women/44.jpg' },
@@ -175,7 +231,7 @@ function TopHeader() {
               <button className="user-popup-action"><i className="fas fa-cog"></i> Settings</button>
               <button className="user-popup-action"><i className="fas fa-wallet"></i> Bal: $7,12,950</button>
               <button className="user-popup-action"><i className="fas fa-headset"></i> Support</button>
-              <button className="user-popup-action user-popup-logout" onClick={logout}><i className="fas fa-sign-out-alt"></i> Log Out</button>
+              <button className="user-popup-action user-popup-logout" onClick={onLogout}><i className="fas fa-sign-out-alt"></i> Log Out</button>
             </div>
           )}
         </div>
@@ -184,46 +240,55 @@ function TopHeader() {
   );
 }
 
-function ProtectedRoute({ children, roles }) {
-  const { user } = useAuth();
-  if (!user) return <LoginPage />;
-  if (roles && !roles.includes(user.role)) return <div className="text-center mt-5">Access Denied</div>;
-  return children;
-}
-
 function App() {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, loading } = useAuth();
   const toggleSidebar = () => setCollapsed((c) => !c);
 
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <AuthProvider>
-      <Router>
-        <div className="d-flex">
-          <BootstrapSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-          <div className="flex-grow-1" style={{ marginLeft: collapsed ? 60 : 250, transition: 'margin-left 0.2s', minHeight: '100vh', background: '#f8f9fa' }}>
-            <TopHeader />
-            <div className="container-fluid pt-4">
-              <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<ProtectedRoute roles={['admin','hr','employee']}><Dashboard /></ProtectedRoute>} />
-                <Route path="/employee" element={<ProtectedRoute roles={['admin','hr']}><EmployeeList /></ProtectedRoute>} />
-                <Route path="/attendance" element={<ProtectedRoute roles={['admin','hr','employee']}><AttendancePage /></ProtectedRoute>} />
-                <Route path="/leave" element={<ProtectedRoute roles={['admin','hr','employee']}><LeavePage /></ProtectedRoute>} />
-                <Route path="/payroll" element={<ProtectedRoute roles={['admin','hr','employee']}><PayrollPage /></ProtectedRoute>} />
-                <Route path="/expense-claims" element={<ProtectedRoute roles={['admin','hr','employee']}><ExpenseClaimsPage /></ProtectedRoute>} />
-                <Route path="/accounts" element={<ProtectedRoute roles={['admin','hr']}><AccountsPage /></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute roles={['admin','hr']}><ReportsPage /></ProtectedRoute>} />
-                <Route path="/settings" element={<ProtectedRoute roles={['admin']}><SettingsPage /></ProtectedRoute>} />
-                <Route path="/notifications" element={<ProtectedRoute roles={['admin','hr','employee']}><NotificationsPage /></ProtectedRoute>} />
-                <Route path="/documents" element={<ProtectedRoute roles={['admin','hr','employee']}><DocumentsPage /></ProtectedRoute>} />
-                <Route path="/support" element={<ProtectedRoute roles={['admin','hr','employee']}><SupportPage /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute roles={['admin','hr','employee']}><ProfilePage /></ProtectedRoute>} />
-              </Routes>
-            </div>
-          </div>
-    </div>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        {user ? (
+          <Route
+            path="*"
+            element={
+              <div className="d-flex">
+                <BootstrapSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+                <div className="flex-grow-1" style={{ marginLeft: collapsed ? 60 : 250, transition: 'margin-left 0.2s', minHeight: '100vh', background: '#f8f9fa' }}>
+                  <TopHeader user={user || {}} />
+                  <div className="container-fluid pt-4">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/employee" element={<EmployeeList />} />
+                      <Route path="/attendance" element={<AttendancePage />} />
+                      <Route path="/timesheets" element={<TimesheetPage />} />
+                      <Route path="/leave" element={<LeavePage />} />
+                      <Route path="/payroll" element={<PayrollPage />} />
+                      <Route path="/performance" element={<PerformancePage />} />
+                      <Route path="/reports" element={<ReportsPage />} />
+                      <Route path="/notifications" element={<NotificationsPage />} />
+                      <Route path="/self-service" element={<SelfServicePage />} />
+                      <Route path="/org-structure" element={<OrgStructurePage />} />
+                      <Route path="/documents-letters" element={<DocumentsLettersPage />} />
+                      <Route path="/onboarding" element={<OnboardingPage />} />
+                      <Route path="/employee-exit" element={<EmployeeExitPage />} />
+                      <Route path="/access-roles" element={<AccessRolesPage />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/profile" element={<ProfilePage />} />
+                    </Routes>
+                  </div>
+                </div>
+              </div>
+            }
+          />
+        ) : (
+          <Route path="*" element={<LoginPage />} />
+        )}
+      </Routes>
+    </Router>
   );
 }
 

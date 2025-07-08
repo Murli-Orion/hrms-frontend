@@ -1,21 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../components/AuthContext';
+import { fetchFromApi } from '../../api';
 
 const TABS = ['My Performance', 'Team Performance'];
-const summary = { kras: 3, goals: 5, feedback: 2, appraisals: 1 };
-const myPerformance = [
-  { id: 1, type: 'KRA', desc: 'Customer Satisfaction', status: 'On Track' },
-  { id: 2, type: 'Goal', desc: 'Close 10 tickets', status: 'Achieved' },
-];
-const teamPerformance = [
-  { id: 3, employee: 'Priya Singh', type: 'KRA', desc: 'Process Improvement', status: 'On Track' },
-];
 
 export default function PerformancePage() {
   const { isHR, isAdmin, user } = useAuth();
   const [tab, setTab] = useState(TABS[0]);
   const [theme, setTheme] = useState('light');
+  const [summary, setSummary] = useState({ kras: 0, goals: 0, feedback: 0, appraisals: 0 });
+  const [myPerformance, setMyPerformance] = useState([]);
+  const [teamPerformance, setTeamPerformance] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchFromApi('performance') // You must set up this endpoint in mockapi.io or similar
+      .then(data => {
+        setMyPerformance(data.myPerformance || []);
+        setTeamPerformance(data.teamPerformance || []);
+        setSummary(data.summary || { kras: 0, goals: 0, feedback: 0, appraisals: 0 });
+      })
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
   const handleThemeToggle = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
+
+  if (loading) return <div>Loading performance data...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
     <div className={`performance-dashboard theme-${theme}`}>

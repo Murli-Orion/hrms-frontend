@@ -7,15 +7,18 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = e => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setError('');
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    const res = login(form.username, form.password);
+    setLoading(true);
+    const res = await login(form.username, form.password);
+    setLoading(false);
     if (res.success) {
       navigate('/');
     } else {
@@ -40,7 +43,7 @@ export default function LoginPage() {
             <input type="password" className="form-control" name="password" value={form.password} onChange={handleChange} required />
           </div>
           {error && <div className="alert alert-danger py-1">{error}</div>}
-          <button className="btn btn-primary w-100" type="submit">Login</button>
+          <button className="btn btn-primary w-100" type="submit" disabled={loading}>{loading ? 'Logging in...' : 'Login'}</button>
         </form>
       </div>
     </div>

@@ -5,39 +5,7 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth } from '../AuthContext';
-
-const attendanceData = [
-  { id: 1, employee: 'John Doe', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/32.jpg', punchType: 'Biometric', geofencing: 'New York, US', overtime: 1.5 },
-  { id: 2, employee: 'Jane Smith', date: '2024-01-15', checkIn: '08:45', checkOut: '17:15', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/44.jpg', punchType: 'Web', geofencing: 'London, UK', overtime: 0 },
-  { id: 3, employee: 'Carlos Ruiz', date: '2024-01-15', checkIn: '09:00', checkOut: '18:00', status: 'Late', avatar: 'https://randomuser.me/api/portraits/men/45.jpg', punchType: 'Biometric', geofencing: 'Madrid, ES', overtime: 2 },
-  { id: 4, employee: 'Emily Zhang', date: '2024-01-15', checkIn: '08:15', checkOut: '17:45', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/65.jpg', punchType: 'Biometric', geofencing: 'Beijing, CN', overtime: 1 },
-  { id: 5, employee: 'Michael Johnson', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/22.jpg', punchType: 'Web', geofencing: 'Tokyo, JP', overtime: 0.5 },
-  { id: 6, employee: 'Sarah Wilson', date: '2024-01-15', checkIn: '08:20', checkOut: '17:20', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/33.jpg', punchType: 'Biometric', geofencing: 'Mumbai, IN', overtime: 1 },
-  { id: 7, employee: 'David Brown', date: '2024-01-15', checkIn: '08:40', checkOut: '17:40', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/55.jpg', punchType: 'Web', geofencing: 'São Paulo, BR', overtime: 0.5 },
-  { id: 8, employee: 'Lisa Anderson', date: '2024-01-15', checkIn: '09:15', checkOut: '18:15', status: 'Late', avatar: 'https://randomuser.me/api/portraits/women/66.jpg', punchType: 'Biometric', geofencing: 'Cape Town, ZA', overtime: 2 },
-  { id: 9, employee: 'Robert Taylor', date: '2024-01-15', checkIn: '08:25', checkOut: '17:25', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/77.jpg', punchType: 'Web', geofencing: 'Berlin, DE', overtime: 0.5 },
-  { id: 10, employee: 'Amanda Garcia', date: '2024-01-15', checkIn: '08:35', checkOut: '17:35', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/88.jpg', punchType: 'Biometric', geofencing: 'Paris, FR', overtime: 1 },
-  { id: 11, employee: 'James Martinez', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/99.jpg', punchType: 'Web', geofencing: 'Sydney, AU', overtime: 0.5 },
-  { id: 12, employee: 'Jennifer Lee', date: '2024-01-15', checkIn: '08:50', checkOut: '17:50', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/11.jpg', punchType: 'Biometric', geofencing: 'Toronto, CA', overtime: 1 },
-  { id: 13, employee: 'Christopher White', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/12.jpg', punchType: 'Web', geofencing: 'Dubai, AE', overtime: 0.5 },
-  { id: 14, employee: 'Michelle Rodriguez', date: '2024-01-15', checkIn: '08:20', checkOut: '17:20', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/13.jpg', punchType: 'Biometric', geofencing: 'Moscow, RU', overtime: 1 },
-  { id: 15, employee: 'Daniel Thompson', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/14.jpg', punchType: 'Web', geofencing: 'Mexico City, MX', overtime: 0.5 },
-  { id: 16, employee: 'Nicole Clark', date: '2024-01-15', checkIn: '09:30', checkOut: '18:30', status: 'Late', avatar: 'https://randomuser.me/api/portraits/women/15.jpg', punchType: 'Biometric', geofencing: 'Rio de Janeiro, BR', overtime: 2 },
-  { id: 17, employee: 'Kevin Lewis', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/16.jpg', punchType: 'Web', geofencing: 'Cairo, EG', overtime: 0.5 },
-  { id: 18, employee: 'Stephanie Hall', date: '2024-01-15', checkIn: '08:25', checkOut: '17:25', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/17.jpg', punchType: 'Biometric', geofencing: 'Istanbul, TR', overtime: 1 },
-  { id: 19, employee: 'Andrew Young', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/18.jpg', punchType: 'Web', geofencing: 'Jakarta, ID', overtime: 0.5 },
-  { id: 20, employee: 'Rachel King', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/19.jpg', punchType: 'Biometric', geofencing: 'Seoul, KR', overtime: 1 },
-  { id: 21, employee: 'Thomas Wright', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/20.jpg', punchType: 'Web', geofencing: 'Bangkok, TH', overtime: 0.5 },
-  { id: 22, employee: 'Jessica Lopez', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/21.jpg', punchType: 'Biometric', geofencing: 'Manila, PH', overtime: 1 },
-  { id: 23, employee: 'Ryan Hill', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/23.jpg', punchType: 'Web', geofencing: 'Singapore, SG', overtime: 0.5 },
-  { id: 24, employee: 'Ashley Scott', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/24.jpg', punchType: 'Biometric', geofencing: 'Hong Kong, HK', overtime: 1 },
-  { id: 25, employee: 'Brandon Green', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/25.jpg', punchType: 'Web', geofencing: 'Taipei, TW', overtime: 0.5 },
-  { id: 26, employee: 'Megan Adams', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/26.jpg', punchType: 'Biometric', geofencing: 'Osaka, JP', overtime: 1 },
-  { id: 27, employee: 'Justin Baker', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/27.jpg', punchType: 'Web', geofencing: 'Shanghai, CN', overtime: 0.5 },
-  { id: 28, employee: 'Lauren Nelson', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/28.jpg', punchType: 'Biometric', geofencing: 'Beijing, CN', overtime: 1 },
-  { id: 29, employee: 'Tyler Carter', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/men/29.jpg', punchType: 'Web', geofencing: 'Mumbai, IN', overtime: 0.5 },
-  { id: 30, employee: 'Hannah Mitchell', date: '2024-01-15', checkIn: '08:30', checkOut: '17:30', status: 'Present', avatar: 'https://randomuser.me/api/portraits/women/30.jpg', punchType: 'Biometric', geofencing: 'Delhi, IN', overtime: 1 },
-];
+import { fetchFromApi } from '../../api';
 
 const statusColor = {
   'Present': 'success',
@@ -135,7 +103,10 @@ function getTodayAttendance(attendanceList, user) {
 
 export default function AttendancePage() {
   const { user, isHR, isAdmin } = useAuth();
-  const [attendanceList, setAttendanceList] = useState(attendanceData);
+  const [attendanceList, setAttendanceList] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [tab, setTab] = useState(TABS[0]);
   const [showModal, setShowModal] = useState(false);
   const [editingAttendance, setEditingAttendance] = useState(null);
@@ -150,37 +121,26 @@ export default function AttendancePage() {
   const [employeeFilter, setEmployeeFilter] = useState('');
 
   useEffect(() => {
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.city && data.country_code) setGeoLocation(`${data.city}, ${data.country_code}`);
-        else if (data && data.country_name) setGeoLocation(data.country_name);
-        else setGeoLocation('Unknown');
+    setLoading(true);
+    Promise.all([
+      fetchFromApi('employees'),
+      fetchFromApi('attendance')
+    ])
+      .then(([empData, attData]) => {
+        setEmployees(empData.users || empData);
+        setAttendanceList(attData.users);
       })
-      .catch(() => setGeoLocation('Unknown'));
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
-  // --- Timings & Actions Data (static for now) ---
-  const today = new Date().toISOString().split('T')[0];
-  const myToday = attendanceList.find(a => a.employee === user.name && a.date === today);
-  const avgHours = '7h 2m';
-  const onTime = '40%';
-  const myTeamAvg = '4h 3m';
-  const myTeamOnTime = '18%';
-  const todayDuration = myToday ? '8h 30m' : '--';
-  const effective = '5h 33m';
-  const gross = '5h 33m';
-  const lastLogin = '5h 33m';
-
-  // --- Calendar Data (static for now) ---
-  const calendarDays = Array.from({ length: 35 }, (_, i) => i - 1); // 0=Mon, 34=Sun
-
   // Filtered data for role
+  const userFullName = user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : '';
   const filteredAttendance = (isHR || isAdmin)
     ? (employeeFilter ? attendanceList.filter(a => a.employee === employeeFilter) : attendanceList)
-    : attendanceList.filter(a => a.employee === user.name);
+    : attendanceList.filter(a => a.employee === userFullName);
 
-  // Prepare events for big calendar
+  // Prepare events for big calendar (must be before any return/if)
   const calendarEvents = useMemo(() => {
     let events = [];
     // Attendance events
@@ -227,6 +187,24 @@ export default function AttendancePage() {
     });
     return events;
   }, [filteredAttendance]);
+
+  if (loading) return <div>Loading attendance data...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
+
+  // --- Timings & Actions Data (static for now) ---
+  const today = new Date().toISOString().split('T')[0];
+  const myToday = attendanceList.find(a => a.employee === userFullName && a.date === today);
+  const avgHours = '7h 2m';
+  const onTime = '40%';
+  const myTeamAvg = '4h 3m';
+  const myTeamOnTime = '18%';
+  const todayDuration = myToday ? '8h 30m' : '--';
+  const effective = '5h 33m';
+  const gross = '5h 33m';
+  const lastLogin = '5h 33m';
+
+  // --- Calendar Data (static for now) ---
+  const calendarDays = Array.from({ length: 35 }, (_, i) => i - 1); // 0=Mon, 34=Sun
 
   // Employee filter for HR/Admin
   const employeeOptions = Array.from(new Set(attendanceList.map(a => a.employee)));
@@ -334,6 +312,53 @@ export default function AttendancePage() {
     }
   };
 
+  // --- Attendance Log Visual Table ---
+  function getAttendanceVisual(hours) {
+    // Simulate a bar: width proportional to hours (max 10h)
+    const width = Math.min(100, (hours / 10) * 100);
+    return (
+      <div style={{ background: '#e5eaf5', borderRadius: 6, height: 8, width: 120, position: 'relative' }}>
+        <div style={{ background: '#06b6d4', height: 8, borderRadius: 6, width: `${width}%` }}></div>
+      </div>
+    );
+  }
+
+  function getStatusBadge(status) {
+    if (status === 'REG') return <span className="badge bg-info">REG</span>;
+    if (status === 'W-OFF') return <span className="badge bg-secondary">W-OFF</span>;
+    if (status === 'PENALTY') return <span className="badge bg-danger">PENALTY</span>;
+    return null;
+  }
+
+  function getArrivalStatus(arrival) {
+    if (arrival > 0) return <span><i className="fa fa-exclamation-circle text-warning me-1"></i>{arrival}m late</span>;
+    if (arrival === 0) return <span><i className="fa fa-check-circle text-success me-1"></i>On Time</span>;
+    return <span className="text-muted">--</span>;
+  }
+
+  // Simulate attendance log data from dummyjson users
+  const attendanceLog = attendanceList.slice(0, 10).map((u, i) => {
+    // Simulate: every 7th day is W-OFF, every 5th is REG, every 3rd is PENALTY
+    let status = 'REG';
+    if (i % 7 === 0) status = 'W-OFF';
+    else if (i % 5 === 0) status = 'PENALTY';
+    // Simulate hours and arrival
+    const hours = 8 + (i % 3) * 0.5;
+    const arrival = i % 4 === 0 ? 0 : (i % 4) * 10; // 0=on time, else late in min
+    // Simulate date
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    return {
+      id: u.id,
+      date: date.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit', month: 'short' }),
+      status,
+      hours,
+      arrival,
+      name: `${u.firstName} ${u.lastName}`,
+      location: u.address?.city || 'N/A',
+    };
+  });
+
   return (
     <div className={`attendance-dashboard theme-${theme}`}>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -403,20 +428,43 @@ export default function AttendancePage() {
           ))}
         </div>
         {tab === 'Attendance Log' && (
-          <DataTable
-            columns={[
-              { name: 'Date', selector: row => row.date },
-              { name: 'Check In', selector: row => row.checkIn },
-              { name: 'Check Out', selector: row => row.checkOut },
-              { name: 'Status', selector: row => row.status },
-              { name: 'Punch Type', selector: row => row.punchType },
-              { name: 'Geofencing', selector: row => row.geofencing },
-              { name: 'Overtime', selector: row => row.overtime },
-            ]}
-            data={filteredAttendance}
-            customStyles={customStyles}
-            pagination
-          />
+          <div className="card p-3 mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <div className="fw-bold fs-5">Last 30 Days</div>
+              <div className="text-muted">Showing {attendanceLog.length} records</div>
+            </div>
+            <div className="table-responsive">
+              <table className="table align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Attendance Visual</th>
+                    <th>Gross Hours</th>
+                    <th>Arrival</th>
+                    <th>Log</th>
+                    <th>Location</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {attendanceLog.length === 0 && (
+                    <tr><td colSpan="7" className="text-center text-muted">No attendance records found.</td></tr>
+                  )}
+                  {attendanceLog.map(row => (
+                    <tr key={row.id} className={row.status === 'W-OFF' ? 'table-secondary' : ''}>
+                      <td>{row.date}</td>
+                      <td>{row.name}</td>
+                      <td>{getAttendanceVisual(row.hours)}</td>
+                      <td>{row.hours}h</td>
+                      <td>{getArrivalStatus(row.arrival)}</td>
+                      <td>{getStatusBadge(row.status)}</td>
+                      <td><i className="fa fa-map-marker-alt text-info me-1"></i>{row.location}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
         {tab === 'Calendar' && (
           <div className="calendar-view">
