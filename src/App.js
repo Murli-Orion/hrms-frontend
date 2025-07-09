@@ -20,7 +20,9 @@ import AccessRolesPage from './pages/AccessRolesPage';
 import LoginPage from './pages/LoginPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
+import SuperAdminDashboardPage from './pages/SuperAdminDashboardPage';
 import { useAuth } from './components/AuthContext';
+import RequireRole from './components/RequireRole';
 
 const menuTree = [
   {
@@ -63,13 +65,45 @@ const menuTree = [
   },
 ];
 
+function filterMenuByRole(menuTree, { isSuperAdmin, isAdmin, isHR, isEmployee }) {
+  // Super Admin: all
+  if (isSuperAdmin) return menuTree;
+  // Admin: all except Super Admin
+  if (isAdmin) {
+    return menuTree.map(group => ({
+      ...group,
+      children: group.children.filter(item => item.path !== '/super-admin')
+    }));
+  }
+  // HR: Only HR/employee management menus
+  if (isHR) {
+    return menuTree.map(group => ({
+      ...group,
+      children: group.children.filter(item =>
+        ['/attendance', '/timesheets', '/performance', '/leave', '/employee', '/org-structure', '/documents-letters', '/self-service', '/reports'].includes(item.path)
+      )
+    })).filter(group => group.children.length > 0);
+  }
+  // Employee: Only self-service, profile, documents, attendance, leave
+  if (isEmployee) {
+    return menuTree.map(group => ({
+      ...group,
+      children: group.children.filter(item =>
+        ['/self-service', '/profile', '/documents-letters', '/attendance', '/leave', '/reports'].includes(item.path)
+      )
+    })).filter(group => group.children.length > 0);
+  }
+  return [];
+}
+
 function BootstrapSidebar({ collapsed, setCollapsed }) {
   const location = useLocation();
-  const { isAdmin } = useAuth();
+  const { user, isSuperAdmin, isAdmin, isHR, isEmployee } = useAuth();
   const [openGroups, setOpenGroups] = useState({});
   const handleGroupToggle = (label) => {
     setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
   };
+  const filteredMenu = filterMenuByRole(menuTree, { isSuperAdmin, isAdmin, isHR, isEmployee });
   return (
     <aside className={`sidebar-modern-v2 d-flex flex-column`} style={{ width: collapsed ? 60 : 250, transition: 'width 0.2s' }}>
       <div className="sidebar-logo">
@@ -92,8 +126,14 @@ function BootstrapSidebar({ collapsed, setCollapsed }) {
               {!collapsed && <span>Settings</span>}
             </Link>
           )}
+          {isSuperAdmin && (
+            <Link to="/super-admin" className={`sidebar-menu-item${location.pathname === '/super-admin' ? ' sidebar-menu-active' : ''}`}> 
+              <i className="fas fa-user-shield"></i>
+              {!collapsed && <span>Super Admin</span>}
+            </Link>
+          )}
           <div style={{ height: 8 }} />
-          {menuTree.map((group, idx) => (
+          {filteredMenu.map((group, idx) => (
             <div key={group.label}>
               {!collapsed && <div className="sidebar-section">{group.label}</div>}
               <button
@@ -262,22 +302,23 @@ function App() {
                   <div className="container-fluid pt-4">
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
-                      <Route path="/employee" element={<EmployeeList />} />
-                      <Route path="/attendance" element={<AttendancePage />} />
-                      <Route path="/timesheets" element={<TimesheetPage />} />
-                      <Route path="/leave" element={<LeavePage />} />
-                      <Route path="/payroll" element={<PayrollPage />} />
-                      <Route path="/performance" element={<PerformancePage />} />
-                      <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="/notifications" element={<NotificationEnginePage />} />
-                      <Route path="/self-service" element={<SelfServicePage />} />
-                      <Route path="/org-structure" element={<OrgStructurePage />} />
-                      <Route path="/documents-letters" element={<DocumentsLettersPage />} />
-                      <Route path="/onboarding" element={<OnboardingPage />} />
-                      <Route path="/employee-exit" element={<EmployeeExitPage />} />
-                      <Route path="/access-roles" element={<AccessRolesPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/employee" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR']}><EmployeeList /></RequireRole>} />
+                      <Route path="/attendance" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><AttendancePage /></RequireRole>} />
+                      <Route path="/timesheets" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR']}><TimesheetPage /></RequireRole>} />
+                      <Route path="/leave" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><LeavePage /></RequireRole>} />
+                      <Route path="/payroll" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><PayrollPage /></RequireRole>} />
+                      <Route path="/performance" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR']}><PerformancePage /></RequireRole>} />
+                      <Route path="/reports" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><ReportsPage /></RequireRole>} />
+                      <Route path="/notifications" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><NotificationEnginePage /></RequireRole>} />
+                      <Route path="/self-service" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><SelfServicePage /></RequireRole>} />
+                      <Route path="/org-structure" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR']}><OrgStructurePage /></RequireRole>} />
+                      <Route path="/documents-letters" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><DocumentsLettersPage /></RequireRole>} />
+                      <Route path="/onboarding" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><OnboardingPage /></RequireRole>} />
+                      <Route path="/employee-exit" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><EmployeeExitPage /></RequireRole>} />
+                      <Route path="/access-roles" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><AccessRolesPage /></RequireRole>} />
+                      <Route path="/settings" element={<RequireRole allowedRoles={['Super Admin', 'Admin']}><SettingsPage /></RequireRole>} />
+                      <Route path="/profile" element={<RequireRole allowedRoles={['Super Admin', 'Admin', 'HR', 'Employee']}><ProfilePage /></RequireRole>} />
+                      <Route path="/super-admin" element={<RequireRole allowedRoles={['Super Admin']}><SuperAdminDashboardPage /></RequireRole>} />
                     </Routes>
                   </div>
                 </div>
