@@ -1,133 +1,120 @@
-// Generic API service for HRMS modules using online free APIs
-// You can add more base URLs for different modules as needed
+// Static/mock API service for HRMS modules
 
-const API_BASES = {
-  employees: 'https://dummyjson.com/users',
-  attendance: 'https://dummyjson.com/users', // Stand-in for attendance
-  performance: 'https://dummyjson.com/posts', // Stand-in for performance
-  org: 'https://dummyjson.com/users', // Stand-in for org units
-  documents: 'https://dummyjson.com/posts', // Stand-in for documents
-  notifications: 'https://dummyjson.com/comments', // Stand-in for notifications
-  // Add more as needed
+// --- Static Data ---
+const STATIC_USERS = [
+  { id: 1, username: 'kminchelle', password: '0lelplR', firstName: 'Super', lastName: 'Admin', email: 'super@admin.com', role: 'Super Admin', company: { id: 1, name: 'Acme Corp' }, image: 'https://randomuser.me/api/portraits/men/1.jpg' },
+  { id: 2, username: 'johnd', password: 'm38rmF$', firstName: 'John', lastName: 'Doe', email: 'admin@company.com', role: 'Admin', company: { id: 2, name: 'Globex Inc' }, image: 'https://randomuser.me/api/portraits/men/2.jpg' },
+  { id: 3, username: 'atuny0', password: '9uQFF1', firstName: 'HR', lastName: 'User', email: 'hr@company.com', role: 'HR', company: { id: 2, name: 'Globex Inc' }, image: 'https://randomuser.me/api/portraits/men/3.jpg' },
+  { id: 4, username: 'mor_2314', password: '83r5^_', firstName: 'Employee', lastName: 'User', email: 'employee@company.com', role: 'Employee', company: { id: 2, name: 'Globex Inc' }, image: 'https://randomuser.me/api/portraits/men/4.jpg' },
+  { id: 5, username: 'emilys', password: 'emilyspass', firstName: 'Emily', lastName: 'Smith', email: 'emily@company.com', role: 'Employee', company: { id: 3, name: 'Umbrella Ltd' }, image: 'https://randomuser.me/api/portraits/women/5.jpg' },
+];
+
+const STATIC_ATTENDANCE = [
+  { id: 1, userId: 4, date: '2024-06-01', status: 'Present', arrival: '09:05', departure: '18:00' },
+  { id: 2, userId: 4, date: '2024-06-02', status: 'Absent', arrival: '', departure: '' },
+  { id: 3, userId: 4, date: '2024-06-03', status: 'Present', arrival: '09:10', departure: '18:05' },
+];
+
+const STATIC_NOTIFICATIONS = [
+  { id: 1, title: 'Welcome', message: 'Welcome to HRMS!', read: false, date: '2024-06-01' },
+  { id: 2, title: 'Policy Update', message: 'Leave policy updated.', read: true, date: '2024-06-02' },
+];
+
+const STATIC_REPORTS = {
+  employees: STATIC_USERS.length,
+  orgUnits: 3,
+  attendance: 92,
+  departments: 4,
 };
 
+const STATIC_PERFORMANCE = [
+  { id: 1, userId: 4, month: '2024-05', score: 85 },
+  { id: 2, userId: 4, month: '2024-06', score: 90 },
+];
+
+// --- API Functions ---
 export async function fetchFromApi(module, endpoint = '', options = {}) {
-  const base = API_BASES[module];
-  if (!base) throw new Error(`Unknown API module: ${module}`);
-  const url = endpoint ? `${base}/${endpoint}` : base;
-  const token = localStorage.getItem('authToken');
-  const headers = { ...(options.headers || {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) };
-  const res = await fetch(url, { ...options, headers });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
+  switch (module) {
+    case 'employees':
+    case 'org':
+      return { users: STATIC_USERS };
+    case 'attendance':
+      return STATIC_ATTENDANCE;
+    case 'notifications':
+      return STATIC_NOTIFICATIONS;
+    case 'performance':
+      return STATIC_PERFORMANCE;
+    case 'reports':
+      return STATIC_REPORTS;
+    default:
+      throw new Error(`Unknown API module: ${module}`);
+  }
 }
 
 export async function loginUser(username, password) {
-  const res = await fetch('https://dummyjson.com/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  });
-  if (!res.ok) throw new Error('Invalid credentials');
-  const data = await res.json();
-  if (data.accessToken) localStorage.setItem('authToken', data.accessToken);
-  if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-  return data;
+  const user = STATIC_USERS.find(u => u.username === username && u.password === password);
+  if (!user) throw new Error('Invalid credentials');
+  localStorage.setItem('authToken', 'static-token-' + user.id);
+  return { id: user.id, username: user.username, accessToken: 'static-token-' + user.id };
 }
 
 export async function getCurrentUser() {
   const token = localStorage.getItem('authToken');
   if (!token) throw new Error('No auth token');
-  const res = await fetch('https://dummyjson.com/auth/me', {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (!res.ok) throw new Error('Failed to fetch user');
-  return res.json();
+  const id = parseInt(token.replace('static-token-', ''), 10);
+  const user = STATIC_USERS.find(u => u.id === id);
+  if (!user) throw new Error('User not found');
+  return user;
 }
 
 export async function refreshAuthSession() {
-  const refreshToken = localStorage.getItem('refreshToken');
-  const res = await fetch('https://dummyjson.com/auth/refresh', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken })
-  });
-  if (!res.ok) throw new Error('Failed to refresh session');
-  const data = await res.json();
-  if (data.accessToken) localStorage.setItem('authToken', data.accessToken);
-  if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
-  return data;
+  // No-op for static demo
+  return { accessToken: localStorage.getItem('authToken') };
 }
 
 export async function addUser(user) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch('https://dummyjson.com/users/add', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify(user)
-  });
-  if (!res.ok) throw new Error('Failed to add user');
-  return res.json();
+  // No-op for static demo
+  return { ...user, id: Date.now() };
 }
 
-export async function updateUser(id, user) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`https://dummyjson.com/users/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-    body: JSON.stringify(user)
-  });
-  if (!res.ok) throw new Error('Failed to update user');
-  return res.json();
+export async function updateUser(id, updatedFields) {
+  // No-op for static demo
+  return { id, ...updatedFields };
 }
 
 export async function deleteUser(id) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`https://dummyjson.com/users/${id}`, {
-    method: 'DELETE',
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
-  });
-  if (!res.ok) throw new Error('Failed to delete user');
-  return res.json();
+  // No-op for static demo
+  return { id };
 }
 
 export async function searchUsers(query) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`https://dummyjson.com/users/search?q=${encodeURIComponent(query)}`, {
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
-  });
-  if (!res.ok) throw new Error('Failed to search users');
-  return res.json();
+  return { users: STATIC_USERS.filter(u => u.username.includes(query) || u.firstName.includes(query) || u.lastName.includes(query)) };
 }
 
 export async function filterUsers(key, value) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`https://dummyjson.com/users/filter?key=${encodeURIComponent(key)}&value=${encodeURIComponent(value)}`, {
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
-  });
-  if (!res.ok) throw new Error('Failed to filter users');
-  return res.json();
+  return { users: STATIC_USERS.filter(u => u[key] === value) };
 }
 
 export async function paginateUsers(limit, skip, select) {
-  const token = localStorage.getItem('authToken');
-  let url = `https://dummyjson.com/users?limit=${limit}&skip=${skip}`;
-  if (select) url += `&select=${select}`;
-  const res = await fetch(url, {
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
-  });
-  if (!res.ok) throw new Error('Failed to paginate users');
-  return res.json();
+  let users = STATIC_USERS.slice(skip, skip + limit);
+  if (select) {
+    const fields = select.split(',');
+    users = users.map(u => {
+      const obj = {};
+      fields.forEach(f => obj[f] = u[f]);
+      return obj;
+    });
+  }
+  return { users };
 }
 
 export async function sortUsers(sortBy, order) {
-  const token = localStorage.getItem('authToken');
-  const res = await fetch(`https://dummyjson.com/users?sortBy=${encodeURIComponent(sortBy)}&order=${encodeURIComponent(order)}`, {
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+  const users = [...STATIC_USERS].sort((a, b) => {
+    if (a[sortBy] < b[sortBy]) return order === 'asc' ? -1 : 1;
+    if (a[sortBy] > b[sortBy]) return order === 'asc' ? 1 : -1;
+    return 0;
   });
-  if (!res.ok) throw new Error('Failed to sort users');
-  return res.json();
+  return { users };
 }
 
 // Example usage:
