@@ -8,8 +8,8 @@ import TimesheetPage from './components/Timesheets/TimesheetPage';
 import LeavePage from './components/Leave/LeavePage';
 import PayrollPage from './components/Payroll/PayrollPage';
 import PerformancePage from './components/Performance/PerformancePage';
-import ReportsPage from './components/Reports/ReportsPage';
-import NotificationsPage from './components/Notifications/NotificationsPage';
+import ReportsPage from './pages/ReportsPage';
+import NotificationEnginePage from './pages/NotificationEnginePage';
 import SelfServicePage from './components/SelfService/SelfServicePage';
 import Dashboard from './pages/Dashboard';
 import OrgStructurePage from './pages/OrgStructurePage';
@@ -56,7 +56,7 @@ const menuTree = [
     label: 'Utilities',
     icon: 'fa-toolbox',
     children: [
-      { path: '/notifications', name: 'Notifications', icon: 'fa-bell' },
+      { path: '/notifications', name: 'Notification Engine', icon: 'fa-bell' },
       { path: '/self-service', name: 'Self-service', icon: 'fa-user-cog' },
       { path: '/documents-letters', name: 'Documents & Letters', icon: 'fa-file-alt' },
     ],
@@ -269,7 +269,7 @@ function App() {
                       <Route path="/payroll" element={<PayrollPage />} />
                       <Route path="/performance" element={<PerformancePage />} />
                       <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="/notifications" element={<NotificationsPage />} />
+                      <Route path="/notifications" element={<NotificationEnginePage />} />
                       <Route path="/self-service" element={<SelfServicePage />} />
                       <Route path="/org-structure" element={<OrgStructurePage />} />
                       <Route path="/documents-letters" element={<DocumentsLettersPage />} />
