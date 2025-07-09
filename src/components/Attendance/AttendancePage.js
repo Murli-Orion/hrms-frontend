@@ -114,7 +114,7 @@ export default function AttendancePage() {
     ])
       .then(([empData, attData]) => {
         setEmployees(empData.users || empData);
-        setAttendanceList(attData.users);
+        setAttendanceList(Array.isArray(attData) ? attData : attData.users);
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
