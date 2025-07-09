@@ -282,7 +282,7 @@ function TopHeader({ user, onLogout, onChangeUser }) {
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const toggleSidebar = () => setCollapsed((c) => !c);
 
   if (loading) return <div>Loading...</div>;
@@ -298,7 +298,7 @@ function App() {
               <div className="d-flex">
                 <BootstrapSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
                 <div className="flex-grow-1" style={{ marginLeft: collapsed ? 60 : 250, transition: 'margin-left 0.2s', minHeight: '100vh', background: '#f8f9fa' }}>
-                  <TopHeader user={user || {}} />
+                  <TopHeader user={user || {}} onLogout={logout} />
                   <div className="container-fluid pt-4">
                     <Routes>
                       <Route path="/" element={<Dashboard />} />
